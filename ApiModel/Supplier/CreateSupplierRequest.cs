@@ -9,6 +9,5 @@ public record CreateSupplierRequest(
     string Website,
     string PhysicalAddress,
     string Country, //needs to be dropdown
-    decimal AnnualReportInUSD,
-    DateTime LastModificationDate
+    decimal AnnualReportInUSD
 );
