@@ -22,9 +22,11 @@ public class SupplierService(DataContext dataContext) : ISupplierService
         return Errors.Supplier.NotFound(id);
     }
 
-    public Task<ErrorOr<Updated>> UpdateSupplier(SupplierModel supplier)
+    public async Task<ErrorOr<Updated>> UpdateSupplier(SupplierModel supplier)
     {
-        throw new NotImplementedException();
+        _dataContext.Suppliers.Update(supplier);
+        await _dataContext.SaveChangesAsync();
+        return Result.Updated;
     }
 
     public async Task<ErrorOr<Deleted>> DeleteSupplier(Guid id)

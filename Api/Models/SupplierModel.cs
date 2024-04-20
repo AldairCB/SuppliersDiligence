@@ -65,6 +65,7 @@ public class SupplierModel
     }
 
     public static ErrorOr<SupplierModel> Create(
+        Guid? id,
         string businessName,
         string tradeName,
         string ruc,
@@ -79,7 +80,7 @@ public class SupplierModel
         // TODO: Validate inputs
 
         return new SupplierModel(
-            Guid.NewGuid(),
+            id ?? Guid.NewGuid(),
             businessName,
             tradeName,
             ruc,

@@ -12,11 +12,11 @@ public class SupplierController(ISupplierService supplierService) : ApiControlle
     private readonly ISupplierService _supplierService = supplierService;
 
     [HttpPost]
-    public async Task<IActionResult> CreateSupplier(CreateSupplierRequest request){
+    public async Task<IActionResult> CreateSupplier(SupplierRequest request){
         var errorOrSupplier = RequestToSupplier(request);
         if(errorOrSupplier.IsError) return Problem(errorOrSupplier.Errors);
         SupplierModel supplier = errorOrSupplier.Value;
-        ErrorOr<Created> result = await _supplierService.CreateSupplier(supplier);
+        var result = await _supplierService.CreateSupplier(supplier);
 
         return result.Match(
             created => CreatedAtAction(
@@ -38,17 +38,31 @@ public class SupplierController(ISupplierService supplierService) : ApiControlle
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateSupplier(Guid id, CreateSupplierRequest request){
-        return Ok();
+    public async Task<IActionResult> UpdateSupplier(Guid id, SupplierRequest request){
+        var errorOrSupplier = RequestToSupplier(request, id);
+        if(errorOrSupplier.IsError) return Problem(errorOrSupplier.Errors);
+        SupplierModel supplier = errorOrSupplier.Value;
+        var result = await _supplierService.UpdateSupplier(supplier);
+
+        return result.Match(
+            updated => NoContent(),
+            errors => Problem(errors)
+        );
     }
     
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteSupplier(Guid id){
-        return Ok();
+        var result = await _supplierService.DeleteSupplier(id);
+        return result.Match(
+            deleted => NoContent(),
+            errors => Problem(errors)
+        );
     }
 
-    private static ErrorOr<SupplierModel> RequestToSupplier(CreateSupplierRequest request){
+    private static ErrorOr<SupplierModel> RequestToSupplier(SupplierRequest request, Guid? id = null){
+        // If no id is provided (is null) then it will return a brand new supplier
         return SupplierModel.Create(
+            id,
             request.BusinessName,
             request.TradeName,
             request.Ruc,

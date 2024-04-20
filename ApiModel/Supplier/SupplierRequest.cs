@@ -1,6 +1,6 @@
 namespace ApiModel.Supplier;
 
-public record CreateSupplierRequest(
+public record SupplierRequest(
     string BusinessName,
     string TradeName,
     string Ruc,
