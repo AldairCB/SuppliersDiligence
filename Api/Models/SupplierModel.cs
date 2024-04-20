@@ -3,7 +3,7 @@ using ErrorOr;
 
 namespace Api.Models;
 
-public class Supplier
+public class SupplierModel
 {
     [Key]
     public Guid Id { get; set; }
@@ -38,7 +38,7 @@ public class Supplier
     [Required]
     public DateTime LastModificationDate { get; set; }
 
-    private Supplier(
+    private SupplierModel(
         Guid id,
         string businessName,
         string tradeName,
@@ -64,7 +64,7 @@ public class Supplier
         LastModificationDate = lastModificationDate;
     }
 
-    public static ErrorOr<Supplier> Create(
+    public static ErrorOr<SupplierModel> Create(
         string businessName,
         string tradeName,
         string ruc,
@@ -78,7 +78,7 @@ public class Supplier
         
         // TODO: Validate inputs
 
-        return new Supplier(
+        return new SupplierModel(
             Guid.NewGuid(),
             businessName,
             tradeName,
