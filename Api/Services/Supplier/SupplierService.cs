@@ -2,6 +2,7 @@ using Api.Data;
 using Api.Models;
 using Api.ServicesErrors;
 using ErrorOr;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Services.Supplier;
 
@@ -37,5 +38,10 @@ public class SupplierService(DataContext dataContext) : ISupplierService
             return Result.Deleted;
         }
         return Errors.Supplier.NotFound(id);
+    }
+
+    public async Task<ErrorOr<List<SupplierModel>>> GetAllSuppliers()
+    {
+        return await _dataContext.Suppliers.ToListAsync();
     }
 }

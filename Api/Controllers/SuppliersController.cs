@@ -2,11 +2,13 @@ using Api.Models;
 using Api.Services.Supplier;
 using ApiModel.Supplier;
 using ErrorOr;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
-public class SupplierController(ISupplierService supplierService) : ApiController
+[Authorize]
+public class SuppliersController(ISupplierService supplierService) : ApiController
 {
     //DEPENDENCY INJECTION
     private readonly ISupplierService _supplierService = supplierService;
@@ -28,10 +30,19 @@ public class SupplierController(ISupplierService supplierService) : ApiControlle
         );
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAllSuppliers(){
+        var result = await _supplierService.GetAllSuppliers();
+        return result.Match(
+            supplier => Ok(supplier.ConvertAll(SupplierToResponse)),
+            errors => Problem(errors)
+        );
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetSupplier(Guid id){
-        var errorOrSupplier = await _supplierService.GetSupplier(id);
-        return errorOrSupplier.Match(
+        var result = await _supplierService.GetSupplier(id);
+        return result.Match(
             supplier => Ok(SupplierToResponse(supplier)),
             errors => Problem(errors)
         );
