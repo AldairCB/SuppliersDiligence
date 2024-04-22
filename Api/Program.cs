@@ -1,5 +1,7 @@
 using Api.Data;
 using Api.Services.Supplier;
+using Api.Services.WebScraper;
+using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,12 +22,34 @@ var builder = WebApplication.CreateBuilder(args);
         );
     });
 
+    // Requests limiter
+    builder.Services.AddMemoryCache();
+    builder.Services.AddSingleton<IClientPolicyStore, MemoryCacheClientPolicyStore>();
+    builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+    builder.Services.Configure<ClientRateLimitOptions>(
+        options => {
+            options.GeneralRules =
+            [
+                new RateLimitRule
+                {
+                    Endpoint = "*",
+                    Period = "1m",
+                    Limit = 20,
+                }
+            ];
+        }
+    );
+    builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+    builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+    builder.Services.AddInMemoryRateLimiting();
+
     builder.Services.AddAuthorization();
     builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStores<DataContext>();
     
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddControllers();
+    builder.Services.AddSingleton<IWebScraper, WebScraper>();
     builder.Services.AddScoped<ISupplierService, SupplierService>();
 }
 var app = builder.Build();
@@ -37,6 +61,7 @@ var app = builder.Build();
     }
     app.MapIdentityApi<IdentityUser>();
     app.UseExceptionHandler("/error");
+    app.UseClientRateLimiting();
     app.UseHttpsRedirection();
     app.MapControllers();
     app.UseCors(allowedOrigins);
