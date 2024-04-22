@@ -25,7 +25,7 @@ public class SuppliersController(ISupplierService supplierService) : ApiControll
                 actionName: nameof(GetSupplier), // tells the user the action where they can retrieved the newly created supplier
                 routeValues: new { id = supplier.Id }, // tells the user the id of the newly created supplier
                 value: SupplierToResponse(supplier) //the actual response to the user
-            ),
+            ),  
             errors => Problem(errors)
         );
     }
